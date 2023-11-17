@@ -26,7 +26,7 @@ REPLICATE_API_TOKEN=your_api_token_here
 3. Generate the `embeddings.json` file by running `save-embeddings.js`. (You'll need to hard-code a text filename and adjust how the text is split up depending on the format of your data.)
 
 ```js
-const raw = fs.readFileSync('processing-course.txt', 'utf-8');
+const raw = fs.readFileSync('text-corpus.txt', 'utf-8');
 let chunks = raw.split(/\n+/);
 ```
 
