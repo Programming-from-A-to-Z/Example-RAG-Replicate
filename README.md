@@ -11,6 +11,12 @@ This is an example Node.js application that utilizes embeddings and the LLaMA mo
 - `public/`: p5.js sketch
 - `.env`: API token
 
+## References
+- [Using open-source models for faster and cheaper text embeddings](https://replicate.com/blog/run-bge-embedding-models)
+- [How to use retrieval augmented generation](https://replicate.com/blog/how-to-use-rag-with-chromadb-and-mistral-7b-instruct)
+
+## How-To
+
 1. Install Dependencies
 
 ```sh
