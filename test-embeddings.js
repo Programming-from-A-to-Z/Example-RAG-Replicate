@@ -10,26 +10,22 @@ const replicate = new Replicate({
   auth: process.env.REPLICATE_API_TOKEN,
 });
 
-// Model information for embedding generation
-const version =
-  '9cf9f015a9cb9c61d1a2610659cdac4a4ca222f2d3707a68517b18c198a9add1';
-const model = 'nateraw/bge-large-en-v1.5';
+// Model information for embedding
+const version = 'b6b7585c9640cd7a9572c6e129c9549d79c9c31f0d3fdce7baac7c67ca38f305';
+const model = 'replicate/all-mpnet-base-v25';
 
 // Function to get embedding for a given text
 async function getEmbedding(text) {
   console.log(`Generating embedding for test query: "${text}"`);
   const input = {
-    texts: JSON.stringify([text]),
-    batch_size: 32,
-    convert_to_numpy: false,
-    normalize_embeddings: true,
+    text_batch: JSON.stringify([text]),
   };
   const output = await replicate.run(`${model}:${version}`, { input });
   return output[0];
 }
 
 // Load pre-computed embeddings from file
-const embeddings = JSON.parse(fs.readFileSync('embeddings.json', 'utf-8'));
+const { embeddings } = JSON.parse(fs.readFileSync('data/embeddings.json', 'utf-8'));
 
 // Test function to demonstrate embeddings search
 async function test() {
@@ -40,7 +36,7 @@ async function test() {
   // Calculate similarity of the test query with each stored embedding
   let similarities = embeddings.map(({ text, embedding }) => ({
     text,
-    similarity: cosineSimilarity(inputEmbedding, embedding),
+    similarity: cosineSimilarity(inputEmbedding.embedding, embedding),
   }));
   // Sort the results by similarity in descending order
   similarities = similarities.sort((a, b) => b.similarity - a.similarity);
@@ -49,9 +45,7 @@ async function test() {
   console.log('Top 10 Results:');
   similarities = similarities.slice(0, 10);
   similarities.forEach((item, index) => {
-    console.log(
-      `${index + 1}: ${item.text} (Similarity: ${item.similarity.toFixed(3)})`
-    );
+    console.log(`${index + 1}: ${item.text} (Similarity: ${item.similarity.toFixed(3)})`);
   });
 }
 

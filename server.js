@@ -8,7 +8,7 @@ import * as dotenv from 'dotenv';
 dotenv.config();
 
 // Read and parse the embeddings from the file
-const embeddings = JSON.parse(fs.readFileSync('embeddings.json', 'utf-8'));
+const { embeddings } = JSON.parse(fs.readFileSync('data/embeddings.json', 'utf-8'));
 console.log('Embeddings loaded.');
 
 // Initialize Express application
@@ -23,18 +23,14 @@ const replicate = new Replicate({
 console.log('Replicate client initialized.');
 
 // Model information for embedding generation
-const version =
-  '9cf9f015a9cb9c61d1a2610659cdac4a4ca222f2d3707a68517b18c198a9add1';
-const model = 'nateraw/bge-large-en-v1.5';
+const version = 'b6b7585c9640cd7a9572c6e129c9549d79c9c31f0d3fdce7baac7c67ca38f305';
+const model = 'replicate/all-mpnet-base-v25';
 
 // Function to get embedding for a given text
 async function getEmbedding(text) {
-  console.log(`Generating embedding for: "${text}"`);
+  console.log(`Generating embedding for test query: "${text}"`);
   const input = {
-    texts: JSON.stringify([text]),
-    batch_size: 32,
-    convert_to_numpy: false,
-    normalize_embeddings: true,
+    text_batch: JSON.stringify([text]),
   };
   const output = await replicate.run(`${model}:${version}`, { input });
   return output[0];
@@ -64,13 +60,11 @@ app.post('/api/query', async (request, response) => {
 // Function to generate a query with LLaMA model
 async function askLlama(prompt, knowledge) {
   console.log('Asking LLaMA with knowledge length: ' + knowledge.length);
-  const version =
-    '02e509c789964a7ea8736978a43525956ef40397be9033abf9fd2badfe68c9e3';
-  const model = 'meta/llama-2-70b-chat';
+  const model = 'meta/meta-llama-3-8b-instruct';
   const input = {
     prompt: createPrompt(prompt, knowledge),
   };
-  const output = await replicate.run(`${model}:${version}`, { input });
+  const output = await replicate.run(model, { input });
   return output;
 }
 
@@ -99,7 +93,7 @@ async function findSimilar(prompt) {
   // Calculate similarity of each embedding with the input
   let similarities = embeddings.map(({ text, embedding }) => ({
     text,
-    similarity: cosineSimilarity(inputEmbedding, embedding),
+    similarity: cosineSimilarity(inputEmbedding.embedding, embedding),
   }));
   // Sort similarities in descending order
   similarities = similarities.sort((a, b) => b.similarity - a.similarity);
